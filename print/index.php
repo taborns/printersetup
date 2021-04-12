@@ -228,7 +228,12 @@ function do_print($json) {
                 $img = EscposImage::load($logo);
                 $printer->bitImage($img);
             } catch (\Exception $e) {
-                $printer -> text("********\n");
+                try {
+                    $img = EscposImage::load("logo.png");
+                    $printer->bitImage($img);
+                } catch (\Exception $e) {
+                    $printer -> text("********\n");
+                }
             }
             $printer->feed(1);
 

@@ -173,7 +173,7 @@
 			  <div class="container">
 			    <h1>Branch Configuration</h1>
 			    <hr>
-				<label for="image"><b>Company Logo </b><img src="<?php if(isset($row)) echo '../print/'.$row['logo_file_name']; ?>" alt="Choose a logo(.png) to upload"></label>
+				<label for="image"><b>Company Logo </b><img src="<?php if(isset($row) && (null !== $row['logo_file_name'])) echo '../print/'.$row['logo_file_name']; else echo '../print/logo.png'; ?>" alt="Choose a logo(.png) to upload"></label>
 				<input type="file" accept="png"  placeholder="Choose a logo(.png) to upload" name="image" id="image" autocomplete="off">
 
 			    <label for="branch_id"><b>Branch ID<span>*</span></b></label>
