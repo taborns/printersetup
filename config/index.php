@@ -173,8 +173,8 @@
 			  <div class="container">
 			    <h1>Branch Configuration</h1>
 			    <hr>
-				<label for="image"><b>Company Logo </b><img src="<?php if(isset($row) && (null !== $row['logo_file_name'])) echo '../print/'.$row['logo_file_name']; else echo '../print/logo.png'; ?>" alt="Choose a logo(.png) to upload"></label>
-				<input type="file" accept="png"  placeholder="Choose a logo(.png) to upload" name="image" id="image" autocomplete="off">
+				<label for="image"><b>Company Logo<span>*</span> </b><img src="<?php if(isset($row) && (null !== $row['logo_file_name'])) echo '../print/'.$row['logo_file_name']; else echo '../print/logo.png'; ?>" alt="Choose a logo(.png) to upload"></label>
+				<input type="file" accept="png"  placeholder="Choose a logo(.png) to upload" name="image" id="image" autocomplete="off" required>
 
 				<label for="company_name"><b>Company Name<span>*</span></b></label>
 				<input type="text" placeholder="Abc Sports Betting" name="company_name" id="company_name" value="<?php if(isset($row)) echo $row['company_name']; ?>" autocomplete="off" required>
