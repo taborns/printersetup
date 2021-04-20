@@ -145,8 +145,8 @@
 				 }
 
 				$conn->query("DROP TABLE IF EXISTS $table");
-				$conn->query("CREATE TABLE $table (id INT, branch_id TEXT, signature TEXT, printer_type TEXT, printer TEXT, printer_ip TEXT, printer_port TEXT, logo_file_name TEXT)");
-				$conn->query("INSERT INTO $table(id, branch_id, signature, printer_type, printer, printer_ip, printer_port, logo_file_name) VALUES (1, '".$_POST['branch_id']."', '".$_POST['signature']."', '".$_POST['printer_type']."', '".$_POST['printer']."', '".$_POST['printer_ip']."', '".$_POST['printer_port']."', '".$file_name."')");
+				$conn->query("CREATE TABLE $table (id INT, branch_id TEXT, signature TEXT, printer_type TEXT, printer TEXT, printer_ip TEXT, printer_port TEXT, logo_file_name TEXT, company_name TEXT, domain_name TEXT)");
+				$conn->query("INSERT INTO $table(id, branch_id, signature, printer_type, printer, printer_ip, printer_port, logo_file_name, company_name, domain_name) VALUES (1, '".$_POST['branch_id']."', '".$_POST['signature']."', '".$_POST['printer_type']."', '".$_POST['printer']."', '".$_POST['printer_ip']."', '".$_POST['printer_port']."', '".$file_name."', '".$_POST['company_name']."', '".$_POST['domain_name']."')");
 				$conn->close();
 
 			?>
@@ -161,7 +161,7 @@
         <?php else: ?>
         	<?php
 				try {
-					$stmt = $conn->prepare("SELECT branch_id, signature, printer_type, printer, printer_ip, printer_port, logo_file_name FROM $table WHERE id = 1");
+					$stmt = $conn->prepare("SELECT branch_id, signature, printer_type, printer, printer_ip, printer_port, logo_file_name, company_name, domain_name FROM $table WHERE id = 1");
 					$stmt->execute();
 					$row = $stmt->get_result()->fetch_assoc();
 				} catch (\Exception $e) {
@@ -175,6 +175,12 @@
 			    <hr>
 				<label for="image"><b>Company Logo </b><img src="<?php if(isset($row) && (null !== $row['logo_file_name'])) echo '../print/'.$row['logo_file_name']; else echo '../print/logo.png'; ?>" alt="Choose a logo(.png) to upload"></label>
 				<input type="file" accept="png"  placeholder="Choose a logo(.png) to upload" name="image" id="image" autocomplete="off">
+
+				<label for="company_name"><b>Company Name<span>*</span></b></label>
+				<input type="text" placeholder="Abc Sports Betting" name="company_name" id="company_name" value="<?php if(isset($row)) echo $row['company_name']; ?>" autocomplete="off" required>
+
+				<label for="domain_name"><b>Domain Name<span>*</span></b></label>
+				<input type="text" placeholder="abcbet.et" name="domain_name" id="domain_name" value="<?php if(isset($row)) echo $row['domain_name']; ?>" autocomplete="off" required>
 
 			    <label for="branch_id"><b>Branch ID<span>*</span></b></label>
 			    <input type="text" placeholder="BRANCH-1" name="branch_id" id="branch_id" value="<?php if(isset($row)) echo $row['branch_id']; ?>" autocomplete="off" required>

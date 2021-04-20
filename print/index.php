@@ -32,21 +32,13 @@ use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 
-$data = file_get_contents('php://input');
-
-$json = json_decode($data);
-
-if(isset($json->game_picks)) {
-    include("constants.inc");
-
-    $response = do_print_legacy($json);
-} else {
+try {
     include('../config/config.php');
 
     $conn = get_connection();
     $conn->query("use $db;");
     
-    $stmt = $conn->prepare("SELECT branch_id, printer_type, printer, printer_ip, printer_port, logo_file_name FROM $table WHERE id = 1");
+    $stmt = $conn->prepare("SELECT branch_id, printer_type, printer, printer_ip, printer_port, logo_file_name, company_name, domain_name FROM $table WHERE id = 1");
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
     $conn->close();
@@ -57,7 +49,22 @@ if(isset($json->game_picks)) {
     define("PRINTERIP", $row['printer_ip']);
     define("PRINTERPORT", $row['printer_port']);
     define("LOGO", $row['logo_file_name']);
-    
+    define("COMPANY_NAME", $row['company_name']);
+    define("DOMAIN_NAME", $row['domain_name']);
+} catch (\Exception $e) {
+    header('Content-Type: application/json');
+    header('Status: 400 Bad Request');
+    $response = array("success" => false, "message" => "ERROR: " . $e -> getMessage() . " Complete configuration @ localhost/config first");
+    exit(json_encode($response));
+}
+
+$data = file_get_contents('php://input');
+
+$json = json_decode($data);
+
+if(isset($json->game_picks)) {
+    $response = do_print_legacy($json);
+} else {
     $MAX_LEN = $json->meta->paper_size;
     $SPACING = $json->meta->linespace;
     $FONT = $json->meta->font;
@@ -86,12 +93,13 @@ function do_print_legacy($bet) {
     try {
         if(null !== PRINTERIP && null !== PRINTERPORT && PRINTERTYPE === 'NETWORK')
             $connector = new NetworkPrintConnector(PRINTERIP, PRINTERPORT); // Network
-        elseif (null !== PRINTER && (PRINTERTYPE === 'WINDOWS'))
-            $connector = new WindowsPrintConnector(PRINTER); // Windows USB/LPT/SMB printer
-        elseif (null !== PRINTER && (PRINTERTYPE === 'LINUX'))
-	        $connector = new FilePrintConnector("/dev/usb/".PRINTER);  // Linux Serial printer Other than lp1
-        else
-            $connector = new FilePrintConnector("/dev/usb/lp1");  // Linux Serial printer
+        elseif (null !== PRINTER && (PRINTERTYPE === 'WINDOWS'))    
+            $connector = new WindowsPrintConnector(PRINTER); // Windows USB(Shared)/LPT printer
+        elseif(PRINTERTYPE === 'LINUX')
+            if  (null !== PRINTER)
+                $connector = new FilePrintConnector("/dev/".PRINTER);  // Linux USB, Parallel,USB-Serial & Serial printer
+            else
+                $connector = new FilePrintConnector("/dev/usb/lp0");  // Linux USB printer
 
         $printer = new Printer($connector);
 
@@ -103,14 +111,15 @@ function do_print_legacy($bet) {
             $printer->setJustification(Printer::JUSTIFY_CENTER);
 
             try {
-                $img = EscposImage::load("logo.png");
+                $logo = (null !== LOGO) ? LOGO : "logo.png";
+                $img = EscposImage::load($logo);
                 $printer->bitImage($img);
             } catch (\Exception $e) {
                 $printer -> text("********\n");
             }
             $printer->feed(1);
 
-            $printer->text("AfroSports Betting\n");
+            $printer->text("".COMPANY_NAME."\n");
             $printer->text("Receipt - ".$bet->ticketID."\n");
             $printer->text("Coupon - ".$bet->couponID."\n");
             
@@ -165,7 +174,7 @@ function do_print_legacy($bet) {
             // $mobile = "+251-964-858585";
             // $printer->text($mobile_line.get_white_space($MAX_LEN - strlen($mobile_line.$mobile)).$mobile."\n");
 
-            $printer->text("WWW.AFROBETTING.NET\n");
+            $printer->text("".DOMAIN_NAME."\n");
             $printer->text("$single_line\n");
             $printer->text("BY ETHIOPIANS FOR ETHIOPIANS\n");
             $printer->text("$single_line\n");
