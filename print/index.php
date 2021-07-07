@@ -220,7 +220,7 @@ function do_print($json) {
             $printer->setLineSpacing(1);
 
             $spacing = $GLOBALS['SPACING'];
-            if ($spacing != 1)
+            if ($spacing > 1)
                 $printer->setLineSpacing($spacing);
 
             $color = $GLOBALS['COLOR'];
