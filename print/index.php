@@ -217,6 +217,11 @@ function do_print($json) {
             $printer->setColor(Printer::COLOR_1);
             $printer->setFont(Printer::FONT_A);
             $printer->selectPrintMode(Printer::MODE_FONT_A);
+            $printer->setLineSpacing(1);
+
+            $spacing = $GLOBALS['SPACING'];
+            if ($spacing != 1)
+                $printer->setLineSpacing($spacing);
 
             $color = $GLOBALS['COLOR'];
             if ($color == 2)
